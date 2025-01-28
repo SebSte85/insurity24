@@ -44,11 +44,13 @@ export default function AccountPage() {
 
       setContracts(contracts || []);
     } catch (error) {
-      console.log("Error Details:", {
-        message: error.message,
-        details: error.details,
-        hint: error.hint,
-      });
+      if (error instanceof Error) {
+        console.log("Error Details:", {
+          message: error.message,
+          details: (error as any).details,
+          hint: (error as any).hint,
+        });
+      }
       console.error("Error fetching contracts:", error);
       setContracts([]);
     } finally {
