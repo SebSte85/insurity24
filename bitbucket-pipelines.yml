@@ -8,17 +8,35 @@ pipelines:
         name: Build and Test
         caches:
           - node
+          - cypress
         script:
+          # Install dependencies
           - npm install
           - npm run build
+
+          # Run Jest tests
           - npm run test
+
+          # Start app and run Cypress tests
+          - npm run start &
+          - sleep 10
+          - npx cypress run
         artifacts:
           - .next/**
+          - cypress/videos/**
+          - cypress/screenshots/**
 
     - step:
-        name: API Tests
-        image: justb4/soapui:latest
+        name: Run SoapUI Tests
         script:
+          # Install dependencies
+          - apt-get update && apt-get install -y wget unzip
+
+          # Download and setup SoapUI
+          - wget https://s3.amazonaws.com/downloads.eviware/soapuios/5.6.0/SoapUI-5.6.0-linux-bin.tar.gz
+          - tar -xzf SoapUI-5.6.0-linux-bin.tar.gz
+          - cd SoapUI-5.6.0
+
           # Start the Next.js application
           - npm install
           - npm run build
@@ -26,38 +44,11 @@ pipelines:
           - sleep 10 # Wait for the app to start
 
           # Run SoapUI tests
-          - soapui-testrunner.sh -j -f test-reports -r -a insurance-api-tests.xml
+          - bin/testrunner.sh -j -f /tmp/soapui-results -r -a -s "TestSuite" Rating-API-soapui-project.xml
         artifacts:
-          - test-reports/**
-
-  branches:
-    main:
-      - step:
-          name: Build and Test
-          caches:
-            - node
-          script:
-            - npm install
-            - npm run build
-            - npm run test
-          artifacts:
-            - .next/**
-
-      - step:
-          name: API Tests
-          image: justb4/soapui:latest
-          script:
-            # Start the Next.js application
-            - npm install
-            - npm run build
-            - npm run start &
-            - sleep 10 # Wait for the app to start
-
-            # Run SoapUI tests
-            - soapui-testrunner.sh -j -f test-reports -r -a Rating-API-soapui-project.xml
-          artifacts:
-            - test-reports/**
+          - /tmp/soapui-results/**
 
 definitions:
   caches:
     node: node_modules
+    cypress: ~/.cache/Cypress
