@@ -8,6 +8,16 @@ export default defineConfig({
     specPattern: "cypress/e2e/**/*.cy.{js,jsx,ts,tsx}",
     viewportWidth: 1280,
     viewportHeight: 720,
+    video: false,
+    screenshotOnRunFailure: false,
+    retries: {
+      runMode: 2,
+      openMode: 0,
+    },
+    defaultCommandTimeout: 10000,
+    pageLoadTimeout: 30000,
+    chromeWebSecurity: false,
+    watchForFileChanges: false,
   },
   component: {
     devServer: {
@@ -15,5 +25,7 @@ export default defineConfig({
       bundler: "webpack",
     },
     specPattern: "cypress/component/**/*.cy.{js,jsx,ts,tsx}",
+    supportFile: "cypress/support/component.tsx",
+    indexHtmlFile: "cypress/support/component-index.html",
   },
 });

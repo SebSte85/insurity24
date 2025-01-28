@@ -1,10 +1,12 @@
+"use client";
+
 import {
   NavigationMenu,
   NavigationMenuContent,
   NavigationMenuItem,
   NavigationMenuList,
   NavigationMenuTrigger,
-  NavigationMenuViewport,
+  NavigationMenuLink,
 } from "@/components/ui/navigation-menu";
 import { User } from "lucide-react";
 import Link from "next/link";
@@ -14,14 +16,22 @@ export const Navbar = () => {
   return (
     <nav className="bg-[#6B7BF7] px-8 py-5">
       <div className="max-w-[1200px] mx-auto flex justify-between items-center">
-        <Link href="/">
-          <Image
-            src="/Insurity24 Logo.png"
-            alt="Insurity24 Symbol"
-            width={200}
-            height={200}
-          />
-        </Link>
+        <NavigationMenu>
+          <NavigationMenuList>
+            <NavigationMenuItem>
+              <Link href="/" legacyBehavior passHref>
+                <NavigationMenuLink data-testid="navbar-logo">
+                  <Image
+                    src="/Insurity24 Logo.png"
+                    alt="Insurity24 Symbol"
+                    width={200}
+                    height={200}
+                  />
+                </NavigationMenuLink>
+              </Link>
+            </NavigationMenuItem>
+          </NavigationMenuList>
+        </NavigationMenu>
 
         <div className="flex items-center gap-8">
           <NavigationMenu>

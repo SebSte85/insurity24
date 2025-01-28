@@ -4,19 +4,25 @@ describe("Navbar", () => {
   });
 
   it("should display the logo", () => {
-    cy.get("nav").should("exist");
-    cy.get("nav").contains("Insurity24").should("be.visible");
+    // Prüfe das Logo
+    cy.get('[data-testid="navbar-logo"]').should("exist");
+    cy.get('[data-testid="navbar-logo"] img').should("be.visible");
   });
 
-  it("should have working navigation links", () => {
-    // Prüfe ob der Home Link existiert und funktioniert
-    cy.get("nav").contains("Home").should("be.visible");
-    cy.get("nav").contains("Home").click();
-    cy.url().should("include", "/");
+  it("should have working navigation elements", () => {
+    // Prüfe das Versicherungen Dropdown
+    cy.contains("Versicherungen").should("be.visible");
 
-    // Prüfe ob der Konto Link existiert
-    cy.get("nav").contains("Konto").should("be.visible");
-    cy.get("nav").contains("Konto").click();
+    // Prüfe den Konto-Link mit User-Icon
+    cy.get('a[href="/konto"]').should("be.visible");
+    cy.get('a[href="/konto"]').click();
     cy.url().should("include", "/konto");
+  });
+
+  it("should show insurance options in dropdown", () => {
+    cy.contains("Versicherungen").click();
+    cy.contains("KFZ").should("be.visible");
+    cy.contains("Haftpflicht").should("be.visible");
+    cy.contains("Unfall").should("be.visible");
   });
 });
