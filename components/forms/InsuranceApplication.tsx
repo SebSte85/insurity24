@@ -15,6 +15,8 @@ import { Input } from "@/components/ui/input";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useInsurance } from "@/context/insurance";
+import { InsuranceSuccess } from "@/components/forms/InsuranceSuccess";
+import { useToast } from "@/hooks/use-toast";
 
 const formSchema = z.object({
   firstName: z.string().min(1, "Vorname ist erforderlich"),
@@ -36,23 +38,60 @@ export function InsuranceApplication({
   onSubmit,
 }: InsuranceApplicationProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { personalInfo, setPersonalInfo, reset } = useInsurance();
+  const [policyNumber, setPolicyNumber] = useState<string | null>(null);
+  const { personalInfo, setPersonalInfo, reset, lifeSituation, birthDate } =
+    useInsurance();
+  const { toast } = useToast();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: personalInfo,
+    defaultValues: {
+      firstName: personalInfo.firstName || "",
+      lastName: personalInfo.lastName || "",
+      email: personalInfo.email || "",
+      street: personalInfo.street || "",
+      houseNumber: personalInfo.houseNumber || "",
+      zipCode: personalInfo.zipCode || "",
+      city: personalInfo.city || "",
+    },
   });
 
   const handleSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsSubmitting(true);
-    setPersonalInfo(values);
+    try {
+      const response = await fetch("/api/applications", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...values,
+          lifeSituation: lifeSituation,
+          birthDate: birthDate,
+        }),
+      });
 
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error);
 
-    setIsSubmitting(false);
-    reset(); // Reset store after successful submission
-    onSubmit();
+      setPolicyNumber(data.policyNumber);
+      reset(); // Reset store after successful submission
+    } catch (error) {
+      console.error("Failed to submit application:", error);
+      toast({
+        title: "Fehler beim Einreichen",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Dein Antrag konnte leider nicht eingereicht werden. Bitte versuche es später erneut.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
+
+  if (policyNumber) {
+    return <InsuranceSuccess policyNumber={policyNumber} onClose={onSubmit} />;
+  }
 
   return (
     <Form {...form}>

@@ -10,6 +10,7 @@ interface InsuranceContextType {
     firstName: string;
     lastName: string;
     street: string;
+    email: string;
     houseNumber: string;
     zipCode: string;
     city: string;
@@ -35,6 +36,7 @@ export function InsuranceProvider({ children }: { children: ReactNode }) {
     firstName: "",
     lastName: "",
     street: "",
+    email: "",
     houseNumber: "",
     zipCode: "",
     city: "",
@@ -53,6 +55,7 @@ export function InsuranceProvider({ children }: { children: ReactNode }) {
       firstName: "",
       lastName: "",
       street: "",
+      email: "",
       houseNumber: "",
       zipCode: "",
       city: "",
