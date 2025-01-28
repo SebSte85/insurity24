@@ -1,34 +1,63 @@
 # Uses official Cypress docker image for dependencies
 # https://docs.cypress.io/guides/continuous-integration/introduction#Official-Cypress-Docker-Images
-image: cypress/base:20.9.0
+image: node:20.11.0
 
 pipelines:
   default:
     - step:
-        name: Install and Build
+        name: Build and Test
         caches:
-          - npm
-          - cypress
           - node
         script:
-          - npm ci --prefer-offline
+          - npm install
           - npm run build
+          - npm run test
         artifacts:
-          - my-app/.next/**
-    - parallel:
-        - step:
-            name: Cypress Tests
-            caches:
-              - npm
-              - cypress
-              - node
-            script:
-              - npm ci --prefer-offline
-              - npm run build
-              - npm start &
-              - npx wait-on 'http-get://localhost:3000'
-              - npx cypress run
+          - .next/**
+
+    - step:
+        name: API Tests
+        image: justb4/soapui:latest
+        script:
+          # Start the Next.js application
+          - npm install
+          - npm run build
+          - npm run start &
+          - sleep 10 # Wait for the app to start
+
+          # Run SoapUI tests
+          - soapui-testrunner.sh -j -f test-reports -r -a insurance-api-tests.xml
+        artifacts:
+          - test-reports/**
+
+  branches:
+    main:
+      - step:
+          name: Build and Test
+          caches:
+            - node
+          script:
+            - npm install
+            - npm run build
+            - npm run test
+          artifacts:
+            - .next/**
+
+      - step:
+          name: API Tests
+          image: justb4/soapui:latest
+          script:
+            # Start the Next.js application
+            - npm install
+            - npm run build
+            - npm run start &
+            - sleep 10 # Wait for the app to start
+
+            # Run SoapUI tests
+            - soapui-testrunner.sh -j -f test-reports -r -a Rating-API-soapui-project.xml
+          artifacts:
+            - test-reports/**
+
 definitions:
   caches:
-    npm: $HOME/.npm
-    cypress: $HOME/.cache/Cypress
+    node: node_modules

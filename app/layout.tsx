@@ -1,7 +1,10 @@
+"use client";
+
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Noto_Sans } from "next/font/google";
 import "./globals.css";
 import { InsuranceProvider } from "@/context/insurance";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,10 +22,7 @@ const notoSans = Noto_Sans({
   variable: "--font-noto-sans",
 });
 
-export const metadata: Metadata = {
-  title: "Insurity24",
-  description: "Deine digitale Versicherungsplattform",
-};
+const queryClient = new QueryClient();
 
 export default function RootLayout({
   children,
@@ -34,7 +34,9 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${notoSans.variable} font-sans antialiased`}
       >
-        <InsuranceProvider>{children}</InsuranceProvider>
+        <QueryClientProvider client={queryClient}>
+          <InsuranceProvider>{children}</InsuranceProvider>
+        </QueryClientProvider>
       </body>
     </html>
   );
