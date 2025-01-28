@@ -13,6 +13,8 @@ pipelines:
         script:
           - npm ci --prefer-offline
           - npm run build
+        artifacts:
+          - my-app/.next/**
     - parallel:
         - step:
             name: Cypress Tests
@@ -22,6 +24,7 @@ pipelines:
               - node
             script:
               - npm ci --prefer-offline
+              - npm run build
               - npm start &
               - npx wait-on 'http-get://localhost:3000'
               - npx cypress run
