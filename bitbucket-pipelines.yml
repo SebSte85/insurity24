@@ -22,7 +22,6 @@ pipelines:
               - cypress
               - node
             script:
-              - cd my-app
               - npm ci --prefer-offline
               - npm start &
               - npx wait-on 'http-get://localhost:3000'
